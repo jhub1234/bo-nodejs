@@ -1,9 +1,15 @@
-FROM node:18-bullseye-slim
-# 安装脚本所需的底层系统级工具
-RUN apt-get update && apt-get install -y curl openssl procps && rm -rf /var/lib/apt/lists/*
-WORKDIR /app
-COPY package.json .
-RUN npm install
-COPY . .
-EXPOSE 3000
+FROM node:alpine3.22
+
+WORKDIR /tmp
+
+COPY index.js index.html package.json ./
+
+EXPOSE 3000/tcp
+
+RUN apk update && apk upgrade &&\
+    apk add --no-cache openssl curl gcompat iproute2 coreutils &&\
+    apk add --no-cache bash &&\
+    chmod +x index.js &&\
+    npm install
+
 CMD ["node", "index.js"]
